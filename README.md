@@ -40,11 +40,4 @@ docker compose up --build
 ## Stop and clean containers
 docker compose down
 
-### Containers Running
-
-<img width="1920" height="1080" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/dce56c32-7db0-45c5-a9c4-c8d43f77aa42" />
-
-### App UI
-
-<img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/53b66fa0-0400-4d0e-bdb8-d942324454a7" />
 
