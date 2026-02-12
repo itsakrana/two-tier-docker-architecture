@@ -41,11 +41,9 @@ docker compose up --build
 docker compose down
 
 ### Containers Running
-
-<img width="1920" height="1080" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/a1aa0409-f8be-4831-9ca4-1d6d644eb6d1" />
+![Containers Running](https://user-images.githubusercontent.com/1234567/your-image.png)
 
 ### App UI
-
-<img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/8824f8f7-b580-4ba8-9798-1633a4eba17f" />
+![App UI](https://user-images.githubusercontent.com/1234567/your-second-image.png)
 
 
