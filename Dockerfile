@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.10-slim    # Uses a lightweight Python image
 
 WORKDIR /app
 
@@ -7,8 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN useradd -m appuser
-USER appuser
+RUN useradd -m appuser   # Create a non-root user 'appuser' for security
+USER appuser             # Switch to 'appuser' so app runs with limited permissions
 
 EXPOSE 5000
 
