@@ -1,14 +1,18 @@
 name: Achievements
 
 on:
-  workflow_dispatch:       # lets you run it once right now
+  workflow_dispatch:
   schedule:
-    - cron: '0 5 * * *'    # then daily at 10:30 AM IST
+    - cron: '0 5 * * *'    # 10:30 AM IST daily
 
 permissions:
   contents: write
   pull-requests: write
   issues: write
+
+concurrency:
+  group: achievements
+  cancel-in-progress: false
 
 jobs:
   run:
@@ -44,9 +48,19 @@ jobs:
               --title "docs: update log $(date -u +%F) #$i" \
               --body "Automated log update"
 
-            sleep 10
             git checkout "$BASE"
-            gh pr merge "$BRANCH" --merge --delete-branch
+
+            # GitHub needs a few seconds to check mergeability, so retry
+            for try in 1 2 3 4 5; do
+              sleep 10
+              gh pr merge "$BRANCH" --merge --delete-branch && break
+            done
+
+            STATE=$(gh pr view "$BRANCH" --json state --jq .state 2>/dev/null || echo MERGED)
+            if [ "$STATE" != "MERGED" ]; then
+              echo "PR $BRANCH was not merged"; exit 1
+            fi
+
             git pull origin "$BASE"
           done
 
@@ -55,3 +69,11 @@ jobs:
         run: |
           URL=$(gh issue create --title "Quick check $(date -u +%F)" --body "Opened and closed right away")
           gh issue close "$URL"
+
+      # Heart On Your Sleeve is a one-time badge. Runs only on manual runs.
+      - name: Heart the latest issues and PRs
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          for N in $(gh api "repos/$GITHUB_REPOSITORY/issues?state=all&per_page=5" --jq '.[].number'); do
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$N/reactions" -f content=heart
+          done
