@@ -1,0 +1,57 @@
+name: Achievements
+
+on:
+  workflow_dispatch:       # lets you run it once right now
+  schedule:
+    - cron: '0 5 * * *'    # then daily at 10:30 AM IST
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Git identity
+        run: |
+          git config user.name "itsakrana"
+          git config user.email "222025851+itsakrana@users.noreply.github.com"
+
+      - name: Open and merge PRs
+        run: |
+          COUNT=3
+          BASE=$(git symbolic-ref --short HEAD)
+
+          for i in $(seq 1 $COUNT); do
+            BRANCH="auto/$(date -u +%Y%m%d)-$i-$RANDOM"
+            git checkout -b "$BRANCH" "$BASE"
+
+            echo "PR $(date -u +%F) #$i $RANDOM" >> pr-log.md
+            git add pr-log.md
+            git commit -m "docs: update log #$i" \
+              -m "Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+            git push origin "$BRANCH"
+
+            gh pr create --base "$BASE" --head "$BRANCH" \
+              --title "docs: update log $(date -u +%F) #$i" \
+              --body "Automated log update"
+
+            sleep 10
+            git checkout "$BASE"
+            gh pr merge "$BRANCH" --merge --delete-branch
+            git pull origin "$BASE"
+          done
+
+      # Quickdraw is a one-time badge. Delete this step after you get it.
+      - name: Open and close an issue
+        run: |
+          URL=$(gh issue create --title "Quick check $(date -u +%F)" --body "Opened and closed right away")
+          gh issue close "$URL"
